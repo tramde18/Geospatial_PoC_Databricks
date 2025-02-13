@@ -1,0 +1,38 @@
+{
+    "autoscale": {
+        "min_workers": 2,
+        "max_workers": 2
+    },
+    "cluster_name": "",
+    "spark_version": "13.3.x-scala2.12",
+    "spark_conf": {
+        "spark.databricks.session.share": "true"
+    },
+    "aws_attributes": {
+        "first_on_demand": 1,
+        "availability": "SPOT_WITH_FALLBACK",
+        "zone_id": "auto",
+        "spot_bid_price_percent": 100,
+        "ebs_volume_count": 0
+    },
+    "node_type_id": "r5d.large",
+    "ssh_public_keys": [],
+    "custom_tags": {
+        "work_type": "internal_poc",
+        "work_name": "internal"
+    },
+    "spark_env_vars": {
+        "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+    },
+    "enable_elastic_disk": true,
+    "init_scripts": [
+        {
+            "volumes": {
+                "destination": "/Volumes/dbdemos/benchjam_geospatial/geospatial_init_scripts/mosaic-gdal-init.sh"
+            }
+        }
+    ],
+    "policy_id": "D061EEE0390002FC",
+    "data_security_mode": "SINGLE_USER",
+    "runtime_engine": "PHOTON"
+}

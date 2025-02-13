@@ -1,0 +1,381 @@
+{
+  "name": "Benchjam Prototype Geospatial Pipeline",
+  "email_notifications": {
+    "no_alert_for_skipped_runs": false
+  },
+  "webhook_notifications": {},
+  "timeout_seconds": 0,
+  "max_concurrent_runs": 1,
+  "tasks": [
+    {
+      "task_key": "Bronze_Ingestion_LGA",
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "notebooks/1-Bronze/bronze-geospatial-ingestion",
+        "base_parameters": {
+          "Bronze Table Name": "bronze_lga",
+          "Source File": "LGA_2023_subset.geojson"
+        },
+        "source": "GIT"
+      },
+      "job_cluster_key": "Benchjam_Geospatial_Job_Cluster_Small",
+      "libraries": [
+        {
+          "pypi": {
+            "package": "databricks-mosaic"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "Bronze_Ingestion_Roads",
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "notebooks/1-Bronze/bronze-geospatial-ingestion",
+        "base_parameters": {
+          "Bronze Table Name": "bronze_roads",
+          "Source File": "roads.geojson"
+        },
+        "source": "GIT"
+      },
+      "job_cluster_key": "Benchjam_Geospatial_Job_Cluster_Small",
+      "libraries": [
+        {
+          "pypi": {
+            "package": "databricks-mosaic"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "Bronze_Ingestion_Telematics",
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "notebooks/1-Bronze/bronze-geospatial-ingestion",
+        "base_parameters": {
+          "Bronze Table Name": "bronze_telematics",
+          "Source File": "2022_vehicle_median_speed_month_Centroid.geojson"
+        },
+        "source": "GIT"
+      },
+      "job_cluster_key": "Benchjam_Geospatial_Job_Cluster_Small",
+      "libraries": [
+        {
+          "pypi": {
+            "package": "databricks-mosaic"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "Silver_LGA",
+      "depends_on": [
+        {
+          "task_key": "Bronze_Ingestion_LGA"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "notebooks/2-Silver/silver-geospatial-ingestion",
+        "base_parameters": {
+          "H3 Resolution": "10",
+          "Geo Asset": "lga"
+        },
+        "source": "GIT"
+      },
+      "job_cluster_key": "Benchjam_Geospatial_Job_Cluster_Small",
+      "libraries": [
+        {
+          "pypi": {
+            "package": "databricks-mosaic"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "Silver_Roads",
+      "depends_on": [
+        {
+          "task_key": "Bronze_Ingestion_Roads"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "notebooks/2-Silver/silver-geospatial-ingestion",
+        "base_parameters": {
+          "H3 Resolution": "10",
+          "Geo Asset": "roads"
+        },
+        "source": "GIT"
+      },
+      "job_cluster_key": "Benchjam_Geospatial_Job_Cluster_Small",
+      "libraries": [
+        {
+          "pypi": {
+            "package": "databricks-mosaic"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "Silver_Roads_LGA_Joined",
+      "depends_on": [
+        {
+          "task_key": "Silver_LGA"
+        },
+        {
+          "task_key": "Silver_Roads"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "notebooks/2-Silver/silver-join-roads-lga",
+        "source": "GIT"
+      },
+      "job_cluster_key": "Benchjam_Geospatial_Job_Cluster_Small",
+      "libraries": [
+        {
+          "pypi": {
+            "package": "databricks-mosaic"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "Silver_Telematics",
+      "depends_on": [
+        {
+          "task_key": "Bronze_Ingestion_Telematics"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "notebooks/2-Silver/silver-geospatial-ingestion",
+        "base_parameters": {
+          "H3 Resolution": "10",
+          "Geo Asset": "telematics"
+        },
+        "source": "GIT"
+      },
+      "job_cluster_key": "Benchjam_Geospatial_Job_Cluster_Small",
+      "libraries": [
+        {
+          "pypi": {
+            "package": "databricks-mosaic"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "Silver_Roads_LGA_Telematics_Joined",
+      "depends_on": [
+        {
+          "task_key": "Silver_Roads_LGA_Joined"
+        },
+        {
+          "task_key": "Silver_Telematics"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "notebooks/2-Silver/silver-join-telematics-roads-lga",
+        "source": "GIT"
+      },
+      "job_cluster_key": "Benchjam_Geospatial_Job_Cluster_Small",
+      "libraries": [
+        {
+          "pypi": {
+            "package": "databricks-mosaic"
+          }
+        },
+        {
+          "pypi": {
+            "package": "shortuuid"
+          }
+        },
+        {
+          "pypi": {
+            "package": "mlflow"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "Gold_Roads_Aggregation",
+      "depends_on": [
+        {
+          "task_key": "Silver_Roads_LGA_Telematics_Joined"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "notebooks/3-Gold/gold-aggregate-roads_speed",
+        "source": "GIT"
+      },
+      "job_cluster_key": "Benchjam_Geospatial_Job_Cluster_Small",
+      "libraries": [
+        {
+          "pypi": {
+            "package": "databricks-mosaic"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "Gold_GeoOutput_Export",
+      "depends_on": [
+        {
+          "task_key": "Gold_Roads_Aggregation"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "notebooks/3-Gold/gold-export-to-geojson",
+        "base_parameters": {
+          "Gold View": "gold_roads_mean_speed",
+          "Geometry Column of Gold View": "geometry",
+          "Exported File Name": "gold_roads_mean_speed.geojson"
+        },
+        "source": "GIT"
+      },
+      "job_cluster_key": "Benchjam_Geospatial_Job_Cluster_Small",
+      "libraries": [
+        {
+          "pypi": {
+            "package": "databricks-mosaic"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    }
+  ],
+  "job_clusters": [
+    {
+      "job_cluster_key": "Benchjam_Geospatial_Job_Cluster_Small",
+      "new_cluster": {
+        "cluster_name": "",
+        "spark_version": "13.3.x-scala2.12",
+        "spark_conf": {
+          "spark.databricks.session.share": "true"
+        },
+        "aws_attributes": {
+          "first_on_demand": 1,
+          "availability": "SPOT_WITH_FALLBACK",
+          "zone_id": "auto",
+          "spot_bid_price_percent": 100,
+          "ebs_volume_count": 0
+        },
+        "node_type_id": "r5d.large",
+        "custom_tags": {
+          "work_type": "internal_poc",
+          "work_name": "internal"
+        },
+        "spark_env_vars": {
+          "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+        },
+        "enable_elastic_disk": true,
+        "init_scripts": [
+          {
+            "volumes": {
+              "destination": "/Volumes/dbdemos/benchjam_geospatial/geospatial_init_scripts/mosaic-gdal-init.sh"
+            }
+          }
+        ],
+        "policy_id": "D061EEE0390002FC",
+        "data_security_mode": "SINGLE_USER",
+        "runtime_engine": "PHOTON",
+        "autoscale": {
+          "min_workers": 2,
+          "max_workers": 2
+        }
+      }
+    }
+  ],
+  "git_source": {
+    "git_url": "<git url here>", 
+    "git_provider": "gitHub",
+    "git_branch": "DP-404-Refactor-Spatial-KNN-Parameters"
+  },
+  "run_as": {
+    "user_name": "<user email here>"
+  }
+}
